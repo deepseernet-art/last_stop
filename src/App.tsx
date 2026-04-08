@@ -13,6 +13,7 @@ export default function App() {
   const [studentId, setStudentId] = useState('');
   const [name, setName] = useState('');
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [scenarioChoices, setScenarioChoices] = useState<string[]>([]);
 
   const nextStep = () => setStep((s) => s + 1);
 
@@ -26,12 +27,12 @@ export default function App() {
           {step === 0 && <Intro key="intro" onNext={nextStep} />}
           {step === 1 && <Step1LifeLog key="step1" studentId={studentId} setStudentId={setStudentId} name={name} setName={setName} onNext={nextStep} />}
           {step === 2 && <Bridge key="bridge1" text="창밖으로 당신이 지나온 평범한 날들의 풍경이 스쳐 지나갑니다." onNext={nextStep} />}
-          {step === 3 && <Step2Episodes key="episodes" onNext={nextStep} />}
+          {step === 3 && <Step2Episodes key="episodes" onNext={(choices) => { setScenarioChoices(choices); nextStep(); }} />}
           {step === 4 && <Step2UnexpectedStop key="step2" onNext={nextStep} />}
           {step === 5 && <Bridge key="bridge2" text="당연하게 여겼던 내일은 오지 않았습니다. 이제 가방을 정리해야 할 시간입니다." onNext={nextStep} />}
           {step === 6 && <Step3SieveOfValues key="step3" selectedValues={selectedValues} setSelectedValues={setSelectedValues} onNext={nextStep} />}
           {step === 7 && <Bridge key="bridge3" text="이 남은 것들이, 당신이 어떤 사람인지 말해줄 것입니다." onNext={nextStep} />}
-          {step === 8 && <Step4FinalTicket key="step4" studentId={studentId} name={name} selectedValues={selectedValues} />}
+          {step === 8 && <Step4FinalTicket key="step4" studentId={studentId} name={name} selectedValues={selectedValues} scenarioChoices={scenarioChoices} />}
         </AnimatePresence>
       </main>
     </div>

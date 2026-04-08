@@ -1,14 +1,13 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import * as htmlToImage from 'html-to-image';
-import { Download, Copy, Check, FileSpreadsheet, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { Download, Copy, Check, FileSpreadsheet, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-export default function Step4FinalTicket({ studentId, name, selectedValues }: { studentId: string, name: string, selectedValues: string[]; key?: string }) {
+export default function Step4FinalTicket({ studentId, name, selectedValues, scenarioChoices = [] }: { studentId: string, name: string, selectedValues: string[], scenarioChoices?: string[]; key?: string }) {
   const defaultEpitaph = `나는 ${selectedValues[0] || '___'}을(를) 사랑하고, ${selectedValues[1] || '___'}을(를) 추구하며, ${selectedValues[2] || '___'}을(를) 남기고 떠난 사람입니다.`;
   const [epitaph, setEpitaph] = useState(defaultEpitaph);
   const [copiedText, setCopiedText] = useState(false);
-  const [copiedImage, setCopiedImage] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const tombstoneRef = useRef<HTMLDivElement>(null);
@@ -27,7 +26,8 @@ export default function Step4FinalTicket({ studentId, name, selectedValues }: { 
         studentId,
         name,
         values: selectedValues.join(', '),
-        epitaph
+        epitaph,
+        scenarioChoices
       };
       // Update existing record for this student if it exists, otherwise push
       const existingIndex = records.findIndex((r: any) => r.studentId === studentId && r.name === name);
@@ -50,35 +50,6 @@ export default function Step4FinalTicket({ studentId, name, selectedValues }: { 
       setTimeout(() => setCopiedText(false), 2000);
     } catch (err) {
       console.error('Failed to copy text: ', err);
-    }
-  };
-
-  const handleCopyImage = async () => {
-    if (!tombstoneRef.current) return;
-    try {
-      const node = tombstoneRef.current;
-      
-      // Create a promise that resolves to the blob to avoid focus loss during async generation
-      const blobPromise = htmlToImage.toBlob(node, {
-        backgroundColor: '#94a3b8', // slate-400
-        pixelRatio: 2,
-        width: node.offsetWidth,
-        height: node.offsetHeight,
-        style: { margin: '0', transform: 'none' }
-      }).then(blob => {
-        if (!blob) throw new Error('Blob generation failed');
-        return blob;
-      });
-
-      const item = new ClipboardItem({ 'image/png': blobPromise });
-      await navigator.clipboard.write([item]);
-      
-      setCopiedImage(true);
-      setTimeout(() => setCopiedImage(false), 2000);
-      showToast('이미지가 클립보드에 복사되었습니다.\n구글 슬라이드에 붙여넣기(Ctrl+V) 하세요!');
-    } catch (err) {
-      console.error('Failed to copy image: ', err);
-      showToast('이미지 복사에 실패했습니다. 브라우저 보안 정책 차단일 수 있으니 [이미지 다운로드]를 이용해주세요.');
     }
   };
 
@@ -109,13 +80,24 @@ export default function Step4FinalTicket({ studentId, name, selectedValues }: { 
       showToast('저장된 기록이 없습니다.');
       return;
     }
-    const ws = XLSX.utils.json_to_sheet(records.map((r: any) => ({
-      '일시': new Date(r.timestamp).toLocaleString(),
-      '학번': r.studentId,
-      '이름': r.name,
-      '선택한 가치': r.values,
-      '묘비명': r.epitaph
-    })));
+    const ws = XLSX.utils.json_to_sheet(records.map((r: any) => {
+      const choices = Array.isArray(r.scenarioChoices) 
+        ? r.scenarioChoices 
+        : (typeof r.scenarioChoices === 'string' ? r.scenarioChoices.split(' | ') : []);
+        
+      return {
+        '일시': new Date(r.timestamp).toLocaleString(),
+        '학번': r.studentId,
+        '이름': r.name,
+        '시나리오 1': choices[0] || '',
+        '시나리오 2': choices[1] || '',
+        '시나리오 3': choices[2] || '',
+        '시나리오 4': choices[3] || '',
+        '시나리오 5': choices[4] || '',
+        '선택한 가치': r.values,
+        '묘비명': r.epitaph
+      };
+    }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "학생 기록");
     XLSX.writeFile(wb, "마지막_정거장_전체기록.xlsx");
@@ -126,6 +108,12 @@ export default function Step4FinalTicket({ studentId, name, selectedValues }: { 
     setShowResetModal(false);
     showToast('모든 기록이 초기화되었습니다.');
   };
+
+  const todayDate = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   return (
     <motion.div
@@ -169,44 +157,36 @@ export default function Step4FinalTicket({ studentId, name, selectedValues }: { 
               spellCheck={false}
             />
 
-            <div className="flex flex-wrap justify-center gap-2 pt-4 border-t border-slate-400/50">
-              {selectedValues.map(val => (
-                <span key={val} className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-xs shadow-inner">
-                  {val}
-                </span>
-              ))}
+            <div className="w-full pt-5 border-t border-slate-400/50 flex flex-col items-center gap-3">
+              <p className="text-xs font-semibold text-slate-600 tracking-widest">{todayDate}</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {selectedValues.map(val => (
+                  <span key={val} className="px-3 py-1 bg-slate-700 text-slate-200 rounded-full text-xs shadow-inner">
+                    {val}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col items-center gap-4 w-full max-w-md">
-        <div className="flex flex-wrap justify-center gap-3 w-full">
-          <button
-            onClick={handleCopyImage}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-colors shadow-lg shadow-indigo-500/20 text-sm sm:text-base font-medium"
-          >
-            {copiedImage ? <Check className="w-4 h-4 text-green-300" /> : <ImageIcon className="w-4 h-4" />}
-            <span>{copiedImage ? '복사 완료!' : '이미지 복사'}</span>
-          </button>
-        </div>
-        <div className="flex flex-wrap justify-center gap-3 w-full">
-          <button
-            onClick={handleCopyText}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700 text-sm"
-          >
-            {copiedText ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-            <span>{copiedText ? '복사됨' : '텍스트 복사'}</span>
-          </button>
-          <button
-            onClick={handleDownloadImage}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700 text-sm"
-          >
-            <Download className="w-4 h-4" />
-            <span>이미지 다운로드</span>
-          </button>
-        </div>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
+        <button
+          onClick={handleDownloadImage}
+          className="flex-1 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-colors shadow-lg shadow-indigo-500/20 text-base font-bold tracking-wide"
+        >
+          <Download className="w-5 h-5" />
+          <span>이미지 다운로드</span>
+        </button>
+        <button
+          onClick={handleCopyText}
+          className="flex-1 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700 text-base font-bold tracking-wide shadow-lg"
+        >
+          {copiedText ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
+          <span>{copiedText ? '복사 완료' : '텍스트 복사'}</span>
+        </button>
       </div>
       
       <div className="mt-12 flex flex-col items-center gap-4 border-t border-slate-800 pt-8 w-full">

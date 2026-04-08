@@ -21,7 +21,7 @@ export default function Step1LifeLog({
         <h2 className="text-2xl sm:text-3xl font-light text-slate-200">삶의 기록</h2>
         <p className="text-slate-400 leading-relaxed break-keep">
           이 기차의 탑승객은 오직 당신뿐입니다.<br className="hidden sm:block"/>
-          우주에서 유일하고 고유한 당신의 기록을 남겨주세요.
+          세상에 단 하나뿐인, 당신만의 이야기를 남겨주세요.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export default function Step1LifeLog({
                       <p className="text-xl font-bold text-slate-800">탄생</p>
                     </div>
                     <div className="text-center flex flex-col items-center justify-center px-4">
-                      <p className="text-[10px] sm:text-xs text-indigo-700 font-bold mb-1">일회성 · 유일성 · 고유성</p>
+                      <p className="text-[10px] sm:text-xs text-indigo-700 font-bold mb-1">대체할 수 없는 발자국</p>
                       <div className="w-full min-w-[80px] h-[2px] bg-indigo-200 relative">
                         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-indigo-700 rounded-full"></div>
                       </div>
@@ -77,7 +77,7 @@ export default function Step1LifeLog({
                     </div>
                   </div>
                   <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                    <p className="text-xs text-slate-500 mb-1 font-medium">탑승객 (고유한 존재)</p>
+                    <p className="text-xs text-slate-500 mb-1 font-medium">탑승객 (당신만의 빛깔을 지닌 승객)</p>
                     <p className="text-lg font-bold text-slate-800">{studentId} {name}</p>
                   </div>
                 </div>

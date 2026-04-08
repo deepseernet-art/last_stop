@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 
 // 물질적/도구적 가치와 정신적/본래적 가치를 적절히 혼합 (15가지)
 const VALUES = [
-  '돈', '권력', '외모', '건강', '명예', // 물질적, 도구적
-  '사랑', '가족', '우정', '행복', '자유', // 정신적, 본래적
-  '지혜', '평화', '정의', '용기', '재미'  // 정신적, 본래적
+  '돈', '힘', '외모', '땅', '주식',
+  '우정', '사랑', '가족', '건강', '지혜',
+  '자유', '행복', '즐거움', '용기', '정의'
 ];
 
 export default function Step3SieveOfValues({ 
@@ -46,8 +46,8 @@ export default function Step3SieveOfValues({
       <div className="text-center space-y-4 mb-8">
         <h2 className="text-2xl sm:text-3xl font-light text-slate-200">가치의 선별</h2>
         <p className="text-slate-400 break-keep">
-          삶의 유한함 속에서 진정한 의미를 찾아보세요.<br className="hidden sm:block"/>
-          마지막까지 가져갈 수 있는 가치는 단 <span className="text-indigo-400 font-medium">3개</span>뿐입니다.
+          가장 소중하게 생각하는 가치 3가지를 선택해주세요.<br className="hidden sm:block"/>
+          당신의 삶 속에서 진정으로 의미 있었던 것을 찾아보세요.
         </p>
       </div>
 
@@ -71,11 +71,11 @@ export default function Step3SieveOfValues({
           const isSelected = selectedValues.includes(val);
           const isDisabled = !isSelected && selectedValues.length >= 3;
           
-          const randomDelay = i * 0.1;
-          const randomX = (i % 3 === 0 ? 1 : -1) * (20 + (i % 4) * 15); // 20 to 65
-          const randomY = (i % 2 === 0 ? 1 : -1) * (20 + (i % 5) * 15); // 20 to 80
-          const randomDurationX = 4 + (i % 3) * 2;
-          const randomDurationY = 5 + (i % 4) * 1.5;
+          const randomDelay = i * 0.05;
+          const randomX = (i % 2 === 0 ? 1 : -1) * (40 + (i % 5) * 25); // 40 to 140
+          const randomY = (i % 3 === 0 ? 1 : -1) * (40 + (i % 4) * 30); // 40 to 130
+          const randomDurationX = 2.5 + (i % 3) * 1.5;
+          const randomDurationY = 3 + (i % 4) * 1.2;
 
           return (
             <motion.button
